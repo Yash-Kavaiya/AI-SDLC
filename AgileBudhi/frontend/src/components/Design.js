@@ -7,6 +7,26 @@ import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import ShareIcon from '@mui/icons-material/Share';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import AddIcon from '@mui/icons-material/Add';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import ViewKanbanIcon from '@mui/icons-material/ViewKanban';
+import ViewListIcon from '@mui/icons-material/ViewList';
+import TableChartIcon from '@mui/icons-material/TableChart';
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
@@ -37,10 +57,39 @@ const GlowingButton = styled(Button)(({ theme }) => ({
   },
 }));
 
+const KanbanColumn = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(2),
+  margin: theme.spacing(1),
+  minWidth: 250,
+  backgroundColor: 'rgba(255, 255, 255, 0.8)',
+}));
+
+const TaskCard = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(2),
+  margin: theme.spacing(1),
+  backgroundColor: 'white',
+}));
+
 export default function Design() {
   const [requirements, setRequirements] = useState('');
   const [deadline, setDeadline] = useState('');
   const [aiSuggestion, setAiSuggestion] = useState('');
+  const [tasks, setTasks] = useState({
+    'To Do': [
+      { id: 'task-1', content: 'Create wireframes' },
+      { id: 'task-2', content: 'Design UI components' },
+    ],
+    'In Progress': [
+      { id: 'task-3', content: 'Implement responsive layout' },
+    ],
+    'Done': [
+      { id: 'task-4', content: 'Define color scheme' },
+    ],
+  });
+  const [view, setView] = useState('kanban');
+  const [openAddTask, setOpenAddTask] = useState(false);
+  const [newTaskContent, setNewTaskContent] = useState('');
+  const [newTaskStatus, setNewTaskStatus] = useState('To Do');
 
   const handleShare = () => {
     console.log('Sharing:', { requirements, deadline, aiSuggestion });
@@ -55,6 +104,130 @@ export default function Design() {
 4. Integrate accessibility features
 5. Plan for scalability and future updates`);
   };
+
+  const onDragEnd = (result) => {
+    const { source, destination } = result;
+    if (!destination) return;
+
+    const sourceColumn = source.droppableId;
+    const destColumn = destination.droppableId;
+
+    if (sourceColumn === destColumn) {
+      const newColumn = Array.from(tasks[sourceColumn]);
+      const [reorderedItem] = newColumn.splice(source.index, 1);
+      newColumn.splice(destination.index, 0, reorderedItem);
+
+      setTasks({
+        ...tasks,
+        [sourceColumn]: newColumn,
+      });
+    } else {
+      const sourceItems = Array.from(tasks[sourceColumn]);
+      const destItems = Array.from(tasks[destColumn]);
+      const [movedItem] = sourceItems.splice(source.index, 1);
+      destItems.splice(destination.index, 0, movedItem);
+
+      setTasks({
+        ...tasks,
+        [sourceColumn]: sourceItems,
+        [destColumn]: destItems,
+      });
+    }
+  };
+
+  const handleAddTask = () => {
+    if (newTaskContent.trim() !== '') {
+      const newTask = {
+        id: `task-${Date.now()}`,
+        content: newTaskContent,
+      };
+      setTasks(prevTasks => ({
+        ...prevTasks,
+        [newTaskStatus]: [...prevTasks[newTaskStatus], newTask],
+      }));
+      setNewTaskContent('');
+      setOpenAddTask(false);
+    }
+  };
+
+  const renderKanbanBoard = () => (
+    <DragDropContext onDragEnd={onDragEnd}>
+      <Box display="flex" justifyContent="space-between">
+        {Object.entries(tasks).map(([columnId, column]) => (
+          <Droppable droppableId={columnId} key={columnId}>
+            {(provided, snapshot) => (
+              <KanbanColumn
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+                style={{
+                  background: snapshot.isDraggingOver
+                    ? 'lightblue'
+                    : 'rgba(255, 255, 255, 0.8)',
+                }}
+              >
+                <Typography variant="h6">{columnId}</Typography>
+                {column.map((task, index) => (
+                  <Draggable key={task.id} draggableId={task.id} index={index}>
+                    {(provided, snapshot) => (
+                      <TaskCard
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        style={{
+                          ...provided.draggableProps.style,
+                          backgroundColor: snapshot.isDragging
+                            ? '#f0f0f0'
+                            : 'white',
+                        }}
+                      >
+                        {task.content}
+                      </TaskCard>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </KanbanColumn>
+            )}
+          </Droppable>
+        ))}
+      </Box>
+    </DragDropContext>
+  );
+
+  const renderTableView = () => (
+    <TableContainer component={Paper}>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>Task</TableCell>
+            <TableCell>Status</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {Object.entries(tasks).flatMap(([status, taskList]) =>
+            taskList.map(task => (
+              <TableRow key={task.id}>
+                <TableCell>{task.content}</TableCell>
+                <TableCell>{status}</TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+
+  const renderListView = () => (
+    <List>
+      {Object.entries(tasks).flatMap(([status, taskList]) =>
+        taskList.map(task => (
+          <ListItem key={task.id}>
+            <ListItemText primary={task.content} secondary={status} />
+          </ListItem>
+        ))
+      )}
+    </List>
+  );
 
   return (
     <StyledPaper elevation={10}>
@@ -118,7 +291,79 @@ export default function Design() {
             </Box>
           )}
         </Box>
+
+        <Box sx={{ mt: 4 }}>
+          <Typography variant="h5" gutterBottom sx={{ color: '#4a4a4a', fontWeight: 'bold' }}>
+            Task Management
+          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <ToggleButtonGroup
+              value={view}
+              exclusive
+              onChange={(e, newView) => newView && setView(newView)}
+              aria-label="view selector"
+            >
+              <ToggleButton value="kanban" aria-label="kanban view">
+                <ViewKanbanIcon />
+              </ToggleButton>
+              <ToggleButton value="table" aria-label="table view">
+                <TableChartIcon />
+              </ToggleButton>
+              <ToggleButton value="list" aria-label="list view">
+                <ViewListIcon />
+              </ToggleButton>
+            </ToggleButtonGroup>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setOpenAddTask(true)}
+            >
+              Add Task
+            </Button>
+          </Box>
+          {view === 'kanban' && renderKanbanBoard()}
+          {view === 'table' && renderTableView()}
+          {view === 'list' && renderListView()}
+        </Box>
       </ContentBox>
+
+      <Dialog open={openAddTask} onClose={() => setOpenAddTask(false)}>
+        <DialogTitle>Add New Task</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Task Description"
+            type="text"
+            fullWidth
+            variant="outlined"
+            value={newTaskContent}
+            onChange={(e) => setNewTaskContent(e.target.value)}
+          />
+          <TextField
+            select
+            margin="dense"
+            label="Status"
+            fullWidth
+            variant="outlined"
+            value={newTaskStatus}
+            onChange={(e) => setNewTaskStatus(e.target.value)}
+            SelectProps={{
+              native: true,
+            }}
+          >
+            {Object.keys(tasks).map((status) => (
+              <option key={status} value={status}>
+                {status}
+              </option>
+            ))}
+          </TextField>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenAddTask(false)}>Cancel</Button>
+          <Button onClick={handleAddTask}>Add</Button>
+        </DialogActions>
+      </Dialog>
     </StyledPaper>
   );
 }
