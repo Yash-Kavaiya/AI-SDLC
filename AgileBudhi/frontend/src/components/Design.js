@@ -1,89 +1,22 @@
-import React, { useState } from 'react';
-import Typography from '@mui/material/Typography';
-import Paper from '@mui/material/Paper';
-import { styled } from '@mui/material/styles';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import Box from '@mui/material/Box';
-import ShareIcon from '@mui/icons-material/Share';
-import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import React, { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemText from '@mui/material/ListItemText';
-import AddIcon from '@mui/icons-material/Add';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
-import ToggleButton from '@mui/material/ToggleButton';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import ViewKanbanIcon from '@mui/icons-material/ViewKanban';
-import ViewListIcon from '@mui/icons-material/ViewList';
-import TableChartIcon from '@mui/icons-material/TableChart';
+import { Moon, Sun, Share2, Zap, Plus, List, Kanban, Table } from 'lucide-react';
 
-const StyledPaper = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(4),
-  borderRadius: theme.shape.borderRadius * 2,
-  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-  boxShadow: '0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)',
-}));
-
-const ContentBox = styled(Box)(({ theme }) => ({
-  backgroundColor: 'rgba(255, 255, 255, 0.9)',
-  borderRadius: theme.shape.borderRadius,
-  padding: theme.spacing(3),
-  backdropFilter: 'blur(10px)',
-}));
-
-const GlowingButton = styled(Button)(({ theme }) => ({
-  background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
-  border: 0,
-  borderRadius: 3,
-  boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
-  color: 'white',
-  height: 48,
-  padding: '0 30px',
-  margin: theme.spacing(1),
-  '&:hover': {
-    background: 'linear-gradient(45deg, #FE8B8B 30%, #FFAE73 90%)',
-    boxShadow: '0 5px 7px 2px rgba(255, 105, 135, .5)',
-  },
-}));
-
-const KanbanColumn = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(2),
-  margin: theme.spacing(1),
-  minWidth: 250,
-  backgroundColor: 'rgba(255, 255, 255, 0.8)',
-}));
-
-const TaskCard = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(2),
-  margin: theme.spacing(1),
-  backgroundColor: 'white',
-}));
-
-export default function Design() {
+const AgileDesignDashboard = () => {
+  const [darkMode, setDarkMode] = useState(false);
   const [requirements, setRequirements] = useState('');
   const [deadline, setDeadline] = useState('');
   const [aiSuggestion, setAiSuggestion] = useState('');
   const [tasks, setTasks] = useState({
     'To Do': [
-      { id: 'task-1', content: 'Create wireframes' },
-      { id: 'task-2', content: 'Design UI components' },
+      { id: 'task-1', content: 'Define project scope' },
+      { id: 'task-2', content: 'Create user stories' },
     ],
     'In Progress': [
-      { id: 'task-3', content: 'Implement responsive layout' },
+      { id: 'task-3', content: 'Design system architecture' },
     ],
     'Done': [
-      { id: 'task-4', content: 'Define color scheme' },
+      { id: 'task-4', content: 'Stakeholder interviews' },
     ],
   });
   const [view, setView] = useState('kanban');
@@ -91,18 +24,36 @@ export default function Design() {
   const [newTaskContent, setNewTaskContent] = useState('');
   const [newTaskStatus, setNewTaskStatus] = useState('To Do');
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setAiSuggestion(`Based on the SDLC case study for Project X:
+1. Implement Agile Scrum methodology
+2. Set up CI/CD pipeline for faster iterations
+3. Conduct weekly sprint planning and retrospectives
+4. Utilize behavior-driven development (BDD)
+5. Implement automated testing at all levels
+6. Use microservices architecture for scalability`);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const toggleDarkMode = () => setDarkMode(!darkMode);
+
   const handleShare = () => {
-    console.log('Sharing:', { requirements, deadline, aiSuggestion });
     alert('Sharing functionality would be implemented here.');
   };
 
   const generateAiSuggestion = () => {
-    setAiSuggestion(`Based on your requirements, consider the following:
-1. Prioritize user experience design
-2. Implement responsive layouts
-3. Use a modular component structure
-4. Integrate accessibility features
-5. Plan for scalability and future updates`);
+    setAiSuggestion('Processing...');
+    setTimeout(() => {
+      setAiSuggestion(`Updated AI suggestion based on your input:
+1. Prioritize user authentication and authorization
+2. Implement real-time collaboration features
+3. Design for mobile-first approach
+4. Integrate error logging and monitoring
+5. Plan for data migration from legacy systems
+6. Implement progressive web app (PWA) capabilities`);
+    }, 2000);
   };
 
   const onDragEnd = (result) => {
@@ -152,218 +103,220 @@ export default function Design() {
 
   const renderKanbanBoard = () => (
     <DragDropContext onDragEnd={onDragEnd}>
-      <Box display="flex" justifyContent="space-between">
+      <div className="flex justify-between space-x-4">
         {Object.entries(tasks).map(([columnId, column]) => (
           <Droppable droppableId={columnId} key={columnId}>
             {(provided, snapshot) => (
-              <KanbanColumn
+              <div
                 {...provided.droppableProps}
                 ref={provided.innerRef}
-                style={{
-                  background: snapshot.isDraggingOver
-                    ? 'lightblue'
-                    : 'rgba(255, 255, 255, 0.8)',
-                }}
+                className={`flex-1 p-4 rounded-lg ${
+                  darkMode ? 'bg-gray-800' : 'bg-gray-100'
+                } ${snapshot.isDraggingOver ? 'bg-opacity-60' : ''}`}
               >
-                <Typography variant="h6">{columnId}</Typography>
+                <h3 className={`font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>{columnId}</h3>
                 {column.map((task, index) => (
                   <Draggable key={task.id} draggableId={task.id} index={index}>
                     {(provided, snapshot) => (
-                      <TaskCard
+                      <div
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
-                        style={{
-                          ...provided.draggableProps.style,
-                          backgroundColor: snapshot.isDragging
-                            ? '#f0f0f0'
-                            : 'white',
-                        }}
+                        className={`p-2 mb-2 rounded ${
+                          darkMode ? 'bg-gray-700 text-white' : 'bg-white text-gray-800'
+                        } ${snapshot.isDragging ? 'shadow-lg' : 'shadow'}`}
                       >
                         {task.content}
-                      </TaskCard>
+                      </div>
                     )}
                   </Draggable>
                 ))}
                 {provided.placeholder}
-              </KanbanColumn>
+              </div>
             )}
           </Droppable>
         ))}
-      </Box>
+      </div>
     </DragDropContext>
   );
 
   const renderTableView = () => (
-    <TableContainer component={Paper}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Task</TableCell>
-            <TableCell>Status</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
+    <div className={`overflow-x-auto ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-800'}`}>
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className={darkMode ? 'bg-gray-700' : 'bg-gray-50'}>
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Task</th>
+            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Status</th>
+          </tr>
+        </thead>
+        <tbody className={`divide-y ${darkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
           {Object.entries(tasks).flatMap(([status, taskList]) =>
             taskList.map(task => (
-              <TableRow key={task.id}>
-                <TableCell>{task.content}</TableCell>
-                <TableCell>{status}</TableCell>
-              </TableRow>
+              <tr key={task.id}>
+                <td className="px-6 py-4 whitespace-nowrap">{task.content}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{status}</td>
+              </tr>
             ))
           )}
-        </TableBody>
-      </Table>
-    </TableContainer>
+        </tbody>
+      </table>
+    </div>
   );
 
   const renderListView = () => (
-    <List>
+    <ul className={`divide-y ${darkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
       {Object.entries(tasks).flatMap(([status, taskList]) =>
         taskList.map(task => (
-          <ListItem key={task.id}>
-            <ListItemText primary={task.content} secondary={status} />
-          </ListItem>
+          <li key={task.id} className="py-4">
+            <div className={`flex justify-between ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+              <span>{task.content}</span>
+              <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{status}</span>
+            </div>
+          </li>
         ))
       )}
-    </List>
+    </ul>
   );
 
   return (
-    <StyledPaper elevation={10}>
-      <ContentBox>
-        <Typography variant="h4" gutterBottom sx={{ color: '#4a4a4a', fontWeight: 'bold' }}>
-          AI-Enhanced Design
-        </Typography>
-        <Typography variant="body1" paragraph sx={{ color: '#666' }}>
-          Welcome to the future of project design. Let AI assist you in managing all aspects of your project's design phase.
-        </Typography>
-        
-        <Box component="form" noValidate autoComplete="off" sx={{ mt: 3 }}>
-          <TextField
-            fullWidth
-            label="Business Requirements"
-            multiline
-            rows={4}
-            value={requirements}
-            onChange={(e) => setRequirements(e.target.value)}
-            margin="normal"
-            variant="outlined"
-            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-          />
-          <TextField
-            fullWidth
-            label="Project Deadline"
-            type="date"
-            value={deadline}
-            onChange={(e) => setDeadline(e.target.value)}
-            InputLabelProps={{
-              shrink: true,
-            }}
-            margin="normal"
-            variant="outlined"
-            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-          />
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2, mb: 2 }}>
-            <GlowingButton
-              variant="contained"
-              startIcon={<AutoAwesomeIcon />}
-              onClick={generateAiSuggestion}
-            >
-              Generate AI Suggestion
-            </GlowingButton>
-            <GlowingButton
-              variant="contained"
-              startIcon={<ShareIcon />}
-              onClick={handleShare}
-            >
-              Share Requirements
-            </GlowingButton>
-          </Box>
-          {aiSuggestion && (
-            <Box sx={{ mt: 2, mb: 2, backgroundColor: 'rgba(0, 0, 0, 0.05)', p: 2, borderRadius: 2 }}>
-              <Typography variant="h6" gutterBottom sx={{ color: '#4a4a4a' }}>
-                AI Suggestion:
-              </Typography>
-              <Typography variant="body1" sx={{ color: '#666' }}>
-                {aiSuggestion}
-              </Typography>
-            </Box>
-          )}
-        </Box>
+    <div className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold">Agile Design Dashboard</h1>
+          <button
+            onClick={toggleDarkMode}
+            className={`p-2 rounded-full ${darkMode ? 'bg-yellow-400 text-gray-900' : 'bg-gray-800 text-white'}`}
+          >
+            {darkMode ? <Sun size={24} /> : <Moon size={24} />}
+          </button>
+        </div>
 
-        <Box sx={{ mt: 4 }}>
-          <Typography variant="h5" gutterBottom sx={{ color: '#4a4a4a', fontWeight: 'bold' }}>
-            Task Management
-          </Typography>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <ToggleButtonGroup
-              value={view}
-              exclusive
-              onChange={(e, newView) => newView && setView(newView)}
-              aria-label="view selector"
+        <div className={`p-6 rounded-lg shadow-lg mb-8 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
+          <h2 className="text-2xl font-semibold mb-4">SDLC Case Study: Project X</h2>
+          <div className="mb-4">
+            <label className="block mb-2 font-medium">Business Requirements</label>
+            <textarea
+              className={`w-full p-2 rounded ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-800'}`}
+              rows="4"
+              value={requirements}
+              onChange={(e) => setRequirements(e.target.value)}
+              placeholder="Enter project requirements..."
+            ></textarea>
+          </div>
+          <div className="mb-4">
+            <label className="block mb-2 font-medium">Project Deadline</label>
+            <input
+              type="date"
+              className={`w-full p-2 rounded ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-800'}`}
+              value={deadline}
+              onChange={(e) => setDeadline(e.target.value)}
+            />
+          </div>
+          <div className="flex space-x-4">
+            <button
+              onClick={generateAiSuggestion}
+              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
             >
-              <ToggleButton value="kanban" aria-label="kanban view">
-                <ViewKanbanIcon />
-              </ToggleButton>
-              <ToggleButton value="table" aria-label="table view">
-                <TableChartIcon />
-              </ToggleButton>
-              <ToggleButton value="list" aria-label="list view">
-                <ViewListIcon />
-              </ToggleButton>
-            </ToggleButtonGroup>
-            <Button
-              variant="contained"
-              startIcon={<AddIcon />}
-              onClick={() => setOpenAddTask(true)}
+              <Zap size={20} className="mr-2" />
+              Generate AI Suggestion
+            </button>
+            <button
+              onClick={handleShare}
+              className="flex items-center px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
             >
-              Add Task
-            </Button>
-          </Box>
+              <Share2 size={20} className="mr-2" />
+              Share Requirements
+            </button>
+          </div>
+        </div>
+
+        {aiSuggestion && (
+          <div className={`p-6 rounded-lg shadow-lg mb-8 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
+            <h3 className="text-xl font-semibold mb-2">AI Suggestion:</h3>
+            <p className={darkMode ? 'text-gray-300' : 'text-gray-600'}>
+              {aiSuggestion}
+            </p>
+          </div>
+        )}
+
+        <div className={`p-6 rounded-lg shadow-lg ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-semibold">Task Management</h2>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => setView('kanban')}
+                className={`p-2 rounded ${view === 'kanban' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'}`}
+              >
+                <Kanban size={20} />
+              </button>
+              <button
+                onClick={() => setView('table')}
+                className={`p-2 rounded ${view === 'table' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'}`}
+              >
+                <Table size={20} />
+              </button>
+              <button
+                onClick={() => setView('list')}
+                className={`p-2 rounded ${view === 'list' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800'}`}
+              >
+                <List size={20} />
+              </button>
+              <button
+                onClick={() => setOpenAddTask(true)}
+                className="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+              >
+                <Plus size={20} className="mr-2" />
+                Add Task
+              </button>
+            </div>
+          </div>
           {view === 'kanban' && renderKanbanBoard()}
           {view === 'table' && renderTableView()}
           {view === 'list' && renderListView()}
-        </Box>
-      </ContentBox>
+        </div>
+      </div>
 
-      <Dialog open={openAddTask} onClose={() => setOpenAddTask(false)}>
-        <DialogTitle>Add New Task</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Task Description"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={newTaskContent}
-            onChange={(e) => setNewTaskContent(e.target.value)}
-          />
-          <TextField
-            select
-            margin="dense"
-            label="Status"
-            fullWidth
-            variant="outlined"
-            value={newTaskStatus}
-            onChange={(e) => setNewTaskStatus(e.target.value)}
-            SelectProps={{
-              native: true,
-            }}
-          >
-            {Object.keys(tasks).map((status) => (
-              <option key={status} value={status}>
-                {status}
-              </option>
-            ))}
-          </TextField>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenAddTask(false)}>Cancel</Button>
-          <Button onClick={handleAddTask}>Add</Button>
-        </DialogActions>
-      </Dialog>
-    </StyledPaper>
+      {openAddTask && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className={`p-6 rounded-lg ${darkMode ? 'bg-gray-800' : 'bg-white'} w-96`}>
+            <h3 className="text-xl font-semibold mb-4">Add New Task</h3>
+            <input
+              type="text"
+              className={`w-full p-2 mb-4 rounded ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-800'}`}
+              placeholder="Task description"
+              value={newTaskContent}
+              onChange={(e) => setNewTaskContent(e.target.value)}
+            />
+            <select
+              className={`w-full p-2 mb-4 rounded ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-800'}`}
+              value={newTaskStatus}
+              onChange={(e) => setNewTaskStatus(e.target.value)}
+            >
+              {Object.keys(tasks).map((status) => (
+                <option key={status} value={status}>
+                  {status}
+                </option>
+              ))}
+            </select>
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => setOpenAddTask(false)}
+                className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddTask}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+              >
+                Add
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
-}
+};
+
+export default AgileDesignDashboard;
