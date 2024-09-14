@@ -1,0 +1,67 @@
+body {
+  margin: 0;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f8f9fa; /* Light gray background similar to Google's design */
+  color: #202124; /* Dark gray text color */
+}
+
+code {
+  font-family: 'Roboto Mono', source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  background-color: #f1f3f4; /* Light gray background for code blocks */
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+/* Global styles for better typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  color: #1a73e8; /* Google Blue */
+}
+
+a {
+  color: #1a73e8; /* Google Blue */
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Utility classes */
+.text-primary {
+  color: #1a73e8; /* Google Blue */
+}
+
+.text-secondary {
+  color: #34a853; /* Google Green */
+}
+
+.bg-light {
+  background-color: #ffffff;
+}
+
+.bg-dark {
+  background-color: #202124;
+  color: #ffffff;
+}
+
+/* Responsive font sizing */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  body {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 1025px) {
+  body {
+    font-size: 18px;
+  }
+}
